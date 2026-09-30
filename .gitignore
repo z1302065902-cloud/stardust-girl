@@ -12,6 +12,3 @@ test/
 .DS_Store
 node_modules/
 .vercel/
-qa/*.json
-PUBLISH.md
-cover-630x500.png
