@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>星屑少女 · Stardust Girl</title>
+<link rel="stylesheet" href="./src/ui.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.min.js",
+    "three/addons/": "./vendor/jsm/"
+  }
+}
+</script>
+<script>
+  window.__errors = [];
+  addEventListener('error', (e) => window.__errors.push(String((e && (e.message || e.error)) || e)));
+  addEventListener('unhandledrejection', (e) => window.__errors.push('rejection: ' + String(e && e.reason)));
+</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<!-- ================= 加载 ================= -->
+<div id="loading" class="overlay">
+  <div class="load-box">
+    <div class="load-title">星屑少女</div>
+    <div class="load-sub">STARDUST GIRL</div>
+    <div class="bar"><i id="loadbar"></i></div>
+    <div class="load-tip" id="loadtip">正在加载角色与场景…</div>
+  </div>
+</div>
+
+<!-- ================= 标题 ================= -->
+<div id="title" class="overlay hidden">
+  <div class="title-left">
+    <h1>星屑少女</h1>
+    <p class="en">STARDUST GIRL</p>
+    <p class="tag">3D 网页收集跳跃 · 无需下载 · 打开即玩</p>
+    <div class="menu">
+      <button class="btn primary" data-act="start">开 始 游 戏</button>
+      <button class="btn" data-act="gallery">角 色 鉴 赏</button>
+      <button class="btn" data-act="help">操 作 说 明</button>
+      <button class="btn ghost sm" data-act="mute" id="muteBtnTitle">音效：开</button>
+    </div>
+    <div class="levels" id="levelpick"></div>
+    <p class="hint-sm" id="srcinfo"></p>
+  </div>
+</div>
+
+<!-- ================= HUD ================= -->
+<div id="hud" class="hidden">
+  <div class="hud-top">
+    <div class="hud-left">
+      <div class="stat status">
+        <span class="k">生命</span>
+        <div class="hearts" id="hearts"></div>
+      </div>
+      <div class="stat lvname"><span class="v" id="hud-level">云海花园</span></div>
+    </div>
+    <div class="hud-right">
+      <div class="stat-panel">
+        <div class="row"><span class="k">星屑</span><span class="v" id="hud-crystal">0 / 0</span></div>
+        <div class="row"><span class="k">得分</span><span class="v" id="hud-score">0</span></div>
+        <div class="row time"><span class="k">用时</span><span class="v" id="hud-time">0.0s</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="hud-center" id="toast"></div>
+  <div class="prompt-wrap"><div class="prompt hidden" id="prompt"></div></div>
+</div>
+
+<!-- ================= 竖屏 / 触屏控制 ================= -->
+<div id="touch" class="hidden">
+  <button class="tbtn pause" id="btnPause" aria-label="暂停">❚❚</button>
+  <div class="stick" id="stick"><i id="stickNub"></i></div>
+  <div class="tbtns">
+    <button class="tbtn jump" id="btnJump">跳</button>
+    <button class="tbtn spin" id="btnSpin">旋</button>
+    <button class="tbtn cam" id="btnCam">视</button>
+  </div>
+</div>
+
+<!-- ================= 暂停 ================= -->
+<div id="pause" class="overlay hidden">
+  <div class="panel">
+    <h2>暂停</h2>
+    <button class="btn primary" data-act="resume">继续游戏</button>
+    <button class="btn" data-act="restart">重玩本关</button>
+    <button class="btn" data-act="totitle">回到标题</button>
+    <button class="btn ghost" data-act="mute" id="muteBtn">音效：开</button>
+  </div>
+</div>
+
+<!-- ================= 结算 ================= -->
+<div id="result" class="overlay hidden">
+  <div class="panel">
+    <h2 id="result-title">通过！</h2>
+    <div class="stats" id="result-stats"></div>
+    <div class="rank" id="result-rank"></div>
+    <div class="auto-next" id="autoNext"></div>
+    <button class="btn primary" data-act="next" id="nextBtn">下一关</button>
+    <button class="btn" data-act="restart">再玩一次</button>
+    <button class="btn" data-act="totitle">回到标题</button>
+  </div>
+</div>
+
+<!-- ================= 角色鉴赏 ================= -->
+<div id="gallery" class="overlay hidden">
+  <div class="gal-side">
+    <h2>角色鉴赏</h2>
+    <p class="tag" id="gal-info"></p>
+    <div class="gal-btns" id="galBtns"></div>
+    <button class="btn" data-act="totitle">返回标题</button>
+  </div>
+</div>
+
+<!-- ================= 帮助 ================= -->
+<div id="help" class="overlay hidden">
+  <div class="panel wide">
+    <h2>操作说明</h2>
+    <table class="keys">
+      <tr><td>W A S D / 方向键</td><td>移动（相机相对）</td></tr>
+      <tr><td>Shift</td><td>奔跑</td></tr>
+      <tr><td>空格</td><td>跳跃 / 二段跳</td></tr>
+      <tr><td>J / 鼠标左键</td><td>回旋攻击（可击飞敌人）</td></tr>
+      <tr><td>鼠标移动 / Q E</td><td>转动视角</td></tr>
+      <tr><td>滚轮</td><td>拉近拉远</td></tr>
+      <tr><td>Esc</td><td>暂停</td></tr>
+    </table>
+    <p class="tag">目标：收集关卡里所有星屑，光环亮起后进入其中即可过关。踩头或回旋攻击可以击退敌人。</p>
+    <button class="btn primary" data-act="totitle">明白了</button>
+  </div>
+</div>
+
+<div id="perf" class="hidden"></div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

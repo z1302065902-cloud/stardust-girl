@@ -1,0 +1,17 @@
+# 运行时不需要的东西
+assets/packs/
+assets/girl.blend
+assets/girl.blend1
+krita/
+research/
+qa-devices/
+test/
+*.kra
+*.blend1
+*.dmg
+.DS_Store
+node_modules/
+.vercel/
+qa/*.json
+PUBLISH.md
+cover-630x500.png
