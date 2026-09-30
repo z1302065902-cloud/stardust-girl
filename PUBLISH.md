@@ -1,8 +1,31 @@
 # 发布指南（GitHub / Vercel / itch.io）
 
+## 线上地址（已发布，2026-09-29 实核）
+
+| 目标 | 地址 | 核验方式 |
+|---|---|---|
+| GitHub | https://github.com/z1302065902-cloud/stardust-girl （public, MIT） | `git ls-remote` HEAD == 本地 HEAD；仓库页 200 |
+| Vercel | https://stardust-girl.vercel.app （生产, HTTPS） | 匿名 200；页面内 `window.__ready === true`、canvas 1 |
+| itch.io 商店页 | https://zsy2026.itch.io/stardust-girl （**PUBLISHED**，Genre=Platformer） | 匿名 200；作者栏显示绿色 PUBLISHED |
+| itch 播放器（CDN 上的构建） | https://html-classic.itch.zone/html/19480002/index.html | `__ready === true`、canvas 1、66 个资源、0 报错 |
+
+itch 的嵌入是**懒加载**：页面里先是 `div.iframe_placeholder` + `button.load_iframe_btn`（"Run game"），
+点击后才把 `data-iframe` 里的 `<iframe id="game_drop">`（854×480）注入。所以「静态 HTML 里搜不到 iframe」
+是正常的，不是构建没上传——判断方法：点按钮后看 `iframe#game_drop` 是否出现、占位是否消失。
+
+定价：`payment_mode=paid` + `min_price=$1.00`。注意 itch 的原话：
+*"Setting a minimum price will only restrict access to downloadable files. Embedded content is freely
+available."* —— 本项目只有内嵌 build、没有可下载文件，所以这 $1 目前**不产生收入**，页面只多一个
+"Support This Game" 打赏入口。真要收费得先提供可下载版本。
+
 本目录是一份**精简后的可发布版本**：`index.html + src/ + vendor/ + assets/{3 个 glb, props/, tex/}`，
-共约 10MB / 76 个文件。素材源文件（`assets/packs` 里的 VRM/FBX/tar、Blender 工程、Krita 源文件、
+共约 10MB / 87 个文件。素材源文件（`assets/packs` 里的 VRM/FBX/tar、Blender 工程、Krita 源文件、
 研究截图）不在其中——运行时用不到。
+
+封面：`cover-630x500.png`（线上在用，高调版）、`cover-1260x1000.png`（高清）、
+`cover-dark-630x500.png`（深色 Blender 版留档）、`cover-thumb-preview-315x250.png`（缩略图预检）。
+可复现脚本在 `qa-devices/round20_keyart_blender.py`、`round21_keyart_blender_highkey.py`
+与两个合成页 `keyart_composite*.html`。
 
 ## 本地跑
 
