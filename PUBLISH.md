@@ -13,10 +13,31 @@ itch 的嵌入是**懒加载**：页面里先是 `div.iframe_placeholder` + `but
 点击后才把 `data-iframe` 里的 `<iframe id="game_drop">`（854×480）注入。所以「静态 HTML 里搜不到 iframe」
 是正常的，不是构建没上传——判断方法：点按钮后看 `iframe#game_drop` 是否出现、占位是否消失。
 
-定价：`payment_mode=paid` + `min_price=$1.00`。注意 itch 的原话：
-*"Setting a minimum price will only restrict access to downloadable files. Embedded content is freely
-available."* —— 本项目只有内嵌 build、没有可下载文件，所以这 $1 目前**不产生收入**，页面只多一个
-"Support This Game" 打赏入口。真要收费得先提供可下载版本。
+定价：`payment_mode=paid` + `min_price=$1.00`，并已上传可下载文件 **`stardust-girl-offline.zip`（4.5 MB）**。
+itch 的机制原文：*"Setting a minimum price will only restrict access to downloadable files. Embedded content
+is freely available."* —— 所以现在是**双轨**：浏览器里免费试玩（Run game），想拿离线版必须付 ≥ $1。
+匿名复核（未登录 curl 公开页）可见：
+`Download Now` / `Buy Now $1.00 USD or more` / *"you must purchase it at or above the minimum price of
+$1 USD. You will get access to the following files: stardust-girl-offline.zip 4.5 MB"*，
+且页面上唯一的下载相关链接是 `/stardust-girl/purchase`（购买页），没有直链文件——门槛真的生效。
+
+## 离线单文件版（可下载、离线可玩）
+
+`~/Desktop/stardust-girl-offline.zip` 内是 **`stardust-girl-offline.html`（11 MB 单文件）** +
+`README.txt` + `LICENSE` + `LICENSE-ASSETS.md`。双击即玩：无需安装、无需联网、无需本地服务器。
+
+构建脚本 `~/Desktop/standalone-build/build_standalone.py`，做法：
+1. 复制 `src/` → `.build-src/`，把 `three` / `three/addons/...` 裸模块名改写成相对 `vendor/` 路径；
+2. `esbuild src/main.js --bundle --format=iife --alias:three=./vendor/three.module.min.js` → 单个 IIFE；
+3. 57 个 `assets/**/*.glb` + `vendor/draco/{draco_wasm_wrapper.js,draco_decoder.wasm}` base64 内联，
+   并在 `<head>` 里劫持 `fetch` / `XMLHttpRequest` 从内联数据返回（DRACOLoader 是在**主线程**
+   读 wrapper 与 wasm 再塞进 blob worker，所以主线程劫持就够，worker 内部不需要网络）；
+4. ui.css 内联、favicon 转 data: URL、去掉 importmap（模块已打包）。
+
+离线验收（`file://` 打开，`qa-devices/test_standalone*.js`）：`__ready true`、canvas 1、**0 报错**、
+`performance` 外部资源条目 **0**；点 `data-act="start"` 进 play、按 W 玩家位移 2.11 单位、
+第三关（星夜之巅 21 颗星屑）正常加载。注意：单文件版改了任何源码后必须重新跑构建脚本，
+否则下载版会和网页版不一致。
 
 本目录是一份**精简后的可发布版本**：`index.html + src/ + vendor/ + assets/{3 个 glb, props/, tex/}`，
 共约 10MB / 87 个文件。素材源文件（`assets/packs` 里的 VRM/FBX/tar、Blender 工程、Krita 源文件、
