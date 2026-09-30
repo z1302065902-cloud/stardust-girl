@@ -12,3 +12,5 @@ test/
 .DS_Store
 node_modules/
 .vercel/
+.vercel
+.env*
