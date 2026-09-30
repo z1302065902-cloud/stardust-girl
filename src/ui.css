@@ -123,6 +123,24 @@ html, body {
 .lv.locked:hover { transform: none; background: rgba(255, 255, 255, .07); }
 .hint-sm { margin-top: 22px; font-size: 12px; color: #6f6597; }
 
+/* 矮视口（itch 内嵌 854x480、小窗口）：标题区整体缩小，避免被切出屏幕顶部 */
+@media (max-height: 620px) {
+  .title-left h1 { font-size: clamp(30px, 5vw, 48px); }
+  .title-left .en { margin-top: 5px; letter-spacing: .28em; font-size: 10px; }
+  .title-left .tag { margin: 8px 0 14px; font-size: 12px; line-height: 1.45; }
+  .menu { gap: 8px; width: 232px; }
+  .menu .btn { padding: 9px 18px; font-size: 14px; }
+  .menu .btn:not(.primary) { padding: 8px 18px; }
+  .levels { margin-top: 14px; gap: 8px; }
+  .lv { padding: 6px 11px; font-size: 12px; min-height: 32px; }
+  .hint-sm { margin-top: 10px; font-size: 11px; }
+}
+/* 更矮（横屏手机 390 高）：顶对齐，保证第一行永远可见；署名行让位（素材是 CC0，页面里也写了来源） */
+@media (max-height: 470px) {
+  #title { align-items: flex-start; padding-top: 12px; }
+  .hint-sm { display: none; }
+}
+
 /* ------------------------------ HUD ------------------------------------ */
 #hud { position: fixed; inset: 0; z-index: 12; pointer-events: none; }
 .hud-top { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px; }
